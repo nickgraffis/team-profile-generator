@@ -9,4 +9,4 @@ Demo of result here:
 
 <img src="demo.png" />
 
-Demo of CLI [here] (https://www.youtube.com/watch?v=3VXD-FYJgVA)!
+Demo of CLI [here](https://www.youtube.com/watch?v=3VXD-FYJgVA)!
