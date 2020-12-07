@@ -4,45 +4,46 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
-
+const { wantEmployee, whatRole, wantManager, wantEngineer, wantIntern } = require('./prompts.js');
 const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
-
+const OUTPUT_PATH = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
 
-inquirer
-  .prompt([
-    /* Pass your questions in here */
-  ])
-  .then(answers => {
-    // Use user feedback for... whatever!!
-  })
-  .catch(error => {
-    if(error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-    } else {
-      // Something else went wrong
-    }
-  });
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+const $newEmployee = function () {
+    return inquirer.prompt(wantEmployee);
+};
+const $employeeType = function () {
+    return inquirer.prompt(whatRole);
+};
 
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
+function log(employee) {
+  console.log(`Created ${employee.getName()} a(n) ${employee.getRole()} with ID: ${employee.getId()}`);
+};
 
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
+async function createEmployee() {
+    let employee = await $employeeType();
+    employee = employee.role;
+    let data = await (eval('inquirer.prompt(want' + employee + ')'));
+    let dataString = Object.keys(data).map((key) => '"' + data[key] + '"').join(', ');
+    return eval('new ' + employee + '(' + dataString + ')');
+};
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
+async function createEmployees(employees = []) {
+    const wantAnother = await $newEmployee();
+    if (!wantAnother.res) return employees;
+    let newEmployee = await createEmployee();
+    employees.push(newEmployee);
+    log(newEmployee);
+    return createEmployees(employees);
+};
 
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+async function createTeamPage() {
+    const employees = await createEmployees();
+    const teamHTML = render(employees);
+    fs.writeFile(OUTPUT_PATH, teamHTML, (err) => {
+      if (err) throw err;
+      console.log("Teams Page Generated!");
+    });
+};
+
+createTeamPage();
