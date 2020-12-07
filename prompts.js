@@ -1,6 +1,6 @@
 const validateEmail = val => {
   let valid;
-  if (/@\w+.com/.test(val) || val === "") valid = true;
+  if (/@\w+(.com|.edu|.org|.io)/.test(val) || val === "") valid = true;
   return valid || "Invalid Email!";
 }
 
